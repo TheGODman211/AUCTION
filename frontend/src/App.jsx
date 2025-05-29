@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import EmailVerification from "./components/EmailVerification";
-import LiveAuction from "./components/LiveAuction";
+import EmailVerification from "./components/EmailVerification.jsx";
+import LiveAuction from "./components/LiveAuction.jsx";
 
 const App = () => {
   const [email, setEmail] = useState(null);
