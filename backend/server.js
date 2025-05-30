@@ -32,8 +32,10 @@ app.use(cookieParser());
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"));
-  // Start OTP cleanup task every 5 minutes
+  .then(() => {
+    console.log("MongoDB connected");
+
+    // ✅ Start OTP cleanup task every 5 minutes
     setInterval(() => {
       Otp.deleteMany({ expiresAt: { $lt: Date.now() } })
         .then((result) => {
@@ -45,6 +47,7 @@ mongoose
     }, 5 * 60 * 1000); // every 5 minutes
   })
   .catch((err) => console.error(err));
+
 
 // OTP Email Sender
 const transporter = nodemailer.createTransport({
