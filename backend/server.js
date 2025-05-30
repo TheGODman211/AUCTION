@@ -127,6 +127,17 @@ app.post("/api/admin/logout", (req, res) => {
   res.send("Logged out");
 });
 
+// Check admin login status
+app.get("/api/admin/status", async (req, res) => {
+  const token = req.cookies.admin;
+  if (!token) return res.json({ isAdmin: false });
+
+  const admin = await Admin.findById(token);
+  if (!admin) return res.json({ isAdmin: false });
+
+  res.json({ isAdmin: true });
+});
+
 // Auction Routes
 app.post("/api/auctions", requireAdmin, async (req, res) => {
   const auction = await Auction.create(req.body);
@@ -138,16 +149,7 @@ app.get("/api/auctions", async (req, res) => {
   res.send(auctions);
 });
 
-// Check admin login status
-app.get("/api/admin/status", async (req, res) => {
-  const token = req.cookies.admin;
-  if (!token) return res.json({ isAdmin: false });
 
-  const admin = await Admin.findById(token);
-  if (!admin) return res.json({ isAdmin: false });
-
-  res.json({ isAdmin: true });
-});
 
 // WebSocket for bidding
 io.on("connection", (socket) => {
