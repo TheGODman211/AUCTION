@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const EmailVerification = ({ onVerified }) => {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
 
   const sendOtp = async () => {
     try {
@@ -44,7 +46,7 @@ const EmailVerification = ({ onVerified }) => {
       )}
 
       <hr />
-      <button onClick={goToAdminLogin}>Admin Login</button>
+      <button onClick={() => navigate("/admin-login")}>Admin Login</button>
     </div>
   );
 };
