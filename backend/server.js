@@ -1,4 +1,4 @@
-
+// server.js
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
@@ -7,10 +7,14 @@ const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
 const socketIo = require("socket.io");
+const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+
 const Auction = require("./models/Auction");
 const Bid = require("./models/Bid");
 const Otp = require("./models/Otp");
-const crypto = require("crypto");
+const Admin = require("./models/Admin");
 
 // Config
 dotenv.config();
@@ -19,13 +23,17 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: { origin: "*", methods: ["GET", "POST"] },
 });
-app.use(cors());
-app.use(bodyParser.json());
 
-// MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// Middleware
+app.use(cors({ origin: true, credentials: true }));
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err));
 
 // OTP Email Sender
 const transporter = nodemailer.createTransport({
@@ -42,7 +50,19 @@ function sendOtp(email, code) {
   });
 }
 
-// OTP Endpoint
+// Admin Middleware
+const requireAdmin = async (req, res, next) => {
+  const token = req.cookies.admin;
+  if (!token) return res.status(401).send("Not logged in");
+
+  const admin = await Admin.findById(token);
+  if (!admin) return res.status(403).send("Unauthorized");
+
+  req.admin = admin;
+  next();
+};
+
+// OTP Endpoints
 app.post("/api/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email.endsWith("@oldmutual.com.gh")) return res.status(400).send("Invalid email domain");
@@ -60,8 +80,41 @@ app.post("/api/verify-otp", async (req, res) => {
   res.send("Verified");
 });
 
-// Auction endpoints
-app.post("/api/auctions", async (req, res) => {
+// Admin Endpoints
+app.post("/api/admin/register", async (req, res) => {
+  const { username, password } = req.body;
+  const exists = await Admin.findOne({ username });
+  if (exists) return res.status(409).send("Admin already exists");
+
+  const hashed = await bcrypt.hash(password, 10);
+  const admin = new Admin({ username, password: hashed });
+  await admin.save();
+  res.send("Admin created");
+});
+
+app.post("/api/admin/login", async (req, res) => {
+  const { username, password } = req.body;
+  const admin = await Admin.findOne({ username });
+  if (!admin) return res.status(400).send("User not found");
+
+  const match = await bcrypt.compare(password, admin.password);
+  if (!match) return res.status(401).send("Wrong password");
+
+  res.cookie("admin", admin._id, {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+  res.send("Logged in");
+});
+
+app.post("/api/admin/logout", (req, res) => {
+  res.clearCookie("admin");
+  res.send("Logged out");
+});
+
+// Auction Routes
+app.post("/api/auctions", requireAdmin, async (req, res) => {
   const auction = await Auction.create(req.body);
   res.send(auction);
 });

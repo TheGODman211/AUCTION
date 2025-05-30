@@ -1,14 +1,41 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import EmailVerification from "./components/EmailVerification.jsx";
 import LiveAuction from "./components/LiveAuction.jsx";
+import AdminLogin from "./components/AdminLogin.jsx";
+import AdminDashboard from "./components/AdminDashboard.jsx";
 
 const App = () => {
-  const [email, setEmail] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   return (
-    <div>
-      {!email ? <EmailVerification onVerified={setEmail} /> : <LiveAuction userEmail={email} />}
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            userEmail ? (
+              <LiveAuction userEmail={userEmail} />
+            ) : (
+              <EmailVerification onVerified={setUserEmail} />
+            )
+          }
+        />
+        <Route
+          path="/admin-login"
+          element={
+            isAdmin ? <Navigate to="/admin" /> : <AdminLogin onLogin={() => setIsAdmin(true)} />
+          }
+        />
+        <Route
+          path="/admin"
+          element={isAdmin ? <AdminDashboard /> : <Navigate to="/admin-login" />}
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 };
 
