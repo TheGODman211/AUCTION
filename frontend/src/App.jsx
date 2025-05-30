@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import axios from 'axios';
+
 
 import EmailVerification from "./components/EmailVerification.jsx";
 import LiveAuction from "./components/LiveAuction.jsx";
