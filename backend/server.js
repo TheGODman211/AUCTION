@@ -133,7 +133,7 @@ app.post("/api/auctions", requireAdmin, async (req, res) => {
   res.send(auction);
 });
 
-app.get("/api/auctions",requireAdmin, async (req, res) => {
+app.get("/api/auctions", async (req, res) => {
   const auctions = await Auction.find({});
   res.send(auctions);
 });
