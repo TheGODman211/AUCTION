@@ -25,7 +25,7 @@ const io = socketIo(server, {
 });
 
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: "https://auction-theta-two.vercel.app", credentials: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -127,6 +127,18 @@ app.post("/api/admin/logout", (req, res) => {
   res.send("Logged out");
 });
 
+// Auction Routes
+app.post("/api/auctions", requireAdmin, async (req, res) => {
+  const auction = await Auction.create(req.body);
+  res.send(auction);
+});
+
+app.get("/api/auctions", requireAdmin, async (req, res) => {
+  const auctions = await Auction.find({});
+  res.send(auctions);
+});
+
+
 // Check admin login status
 app.get("/api/admin/status", async (req, res) => {
   const token = req.cookies.admin;
@@ -137,19 +149,6 @@ app.get("/api/admin/status", async (req, res) => {
 
   res.json({ isAdmin: true });
 });
-
-// Auction Routes
-app.post("/api/auctions", requireAdmin, async (req, res) => {
-  const auction = await Auction.create(req.body);
-  res.send(auction);
-});
-
-app.get("/api/auctions", async (req, res) => {
-  const auctions = await Auction.find({});
-  res.send(auctions);
-});
-
-
 
 // WebSocket for bidding
 io.on("connection", (socket) => {
