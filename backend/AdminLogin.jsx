@@ -10,7 +10,7 @@ const AdminLogin = () => {
     e.preventDefault();
     try {
       await axios.post(
-        'https://auction-backend-wug0.onrender.com/api/admin/login',
+        ',
         { username, password },
         { withCredentials: true }
       );

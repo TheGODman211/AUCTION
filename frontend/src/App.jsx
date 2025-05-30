@@ -9,6 +9,19 @@ import AdminDashboard from "./components/AdminDashboard.jsx";
 const App = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("https://auction-backend-wug0.onrender.com/api/admin/status", {
+        withCredentials: true,
+      })
+      .then((res) => setIsAdmin(res.data.isAdmin))
+      .catch(() => setIsAdmin(false))
+      .finally(() => setCheckingStatus(false));
+  }, []);
+
+  if (checkingStatus) return <div>Loading...</div>;
 
   return (
     <Router>

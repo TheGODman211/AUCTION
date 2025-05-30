@@ -23,6 +23,9 @@ const EmailVerification = ({ onVerified }) => {
       alert("Invalid OTP");
     }
   };
+   const goToAdminLogin = () => {
+    navigate("/admin-login");
+  };
 
   return (
     <div>
@@ -39,6 +42,9 @@ const EmailVerification = ({ onVerified }) => {
           <button onClick={verifyOtp}>Verify</button>
         </div>
       )}
+
+      <hr />
+      <button onClick={goToAdminLogin}>Admin Login</button>
     </div>
   );
 };

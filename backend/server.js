@@ -32,7 +32,18 @@ app.use(cookieParser());
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
+  .then(() => console.log("MongoDB connected"));
+  // Start OTP cleanup task every 5 minutes
+    setInterval(() => {
+      Otp.deleteMany({ expiresAt: { $lt: Date.now() } })
+        .then((result) => {
+          if (result.deletedCount > 0) {
+            console.log(`Cleaned up ${result.deletedCount} expired OTPs`);
+          }
+        })
+        .catch(console.error);
+    }, 5 * 60 * 1000); // every 5 minutes
+  })
   .catch((err) => console.error(err));
 
 // OTP Email Sender
@@ -119,9 +130,20 @@ app.post("/api/auctions", requireAdmin, async (req, res) => {
   res.send(auction);
 });
 
-app.get("/api/auctions", async (req, res) => {
+app.get("/api/auctions",requireAdmin, async (req, res) => {
   const auctions = await Auction.find({});
   res.send(auctions);
+});
+
+// Check admin login status
+app.get("/api/admin/status", async (req, res) => {
+  const token = req.cookies.admin;
+  if (!token) return res.json({ isAdmin: false });
+
+  const admin = await Admin.findById(token);
+  if (!admin) return res.json({ isAdmin: false });
+
+  res.json({ isAdmin: true });
 });
 
 // WebSocket for bidding
