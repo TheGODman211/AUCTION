@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 // Initialize socket connection
 const socket = io("https://auction-backend-wug0.onrender.com", {
   withCredentials: true,
-  transports: ["websocket"]
+  transports: ["websocket", "polling"]
 });
 
 socket.on("connect", () => {
@@ -16,6 +16,7 @@ const LiveAuction = ({ userEmail }) => {
   const [auctions, setAuctions] = useState([]);
   const [bids, setBids] = useState({});
   const [amounts, setAmounts] = useState({});
+
 
   useEffect(() => {
     axios
@@ -33,6 +34,10 @@ const LiveAuction = ({ userEmail }) => {
     };
   }, []);
 
+  useEffect(() => {
+  console.log("👤 User email received:", userEmail);
+}, [userEmail]);
+
   const placeBid = (auctionId) => {
     const amount = Number(amounts[auctionId]);
     if (isNaN(amount) || amount <= 0) {
@@ -40,6 +45,7 @@ const LiveAuction = ({ userEmail }) => {
     }
 
     const bidData = {
+      auctionId,
       amount: amount,
       bidder:{
         name: userEmail.split("@")[0],

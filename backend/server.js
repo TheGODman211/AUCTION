@@ -173,14 +173,26 @@ app.get("/api/admin/auctions/:id/bids", requireAdmin, async (req, res) => {
 });
 
 
+
 // WebSocket for bidding
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("🔌 WebSocket client connected");
+
   socket.on("newBid", async ({ auctionId, bid }) => {
-    await Bid.create(bid);
-    io.emit("bidUpdate", { auctionId, bid });
+    try {
+      const savedBid = await Bid.create({
+        auctionId,
+        ...bid
+      });
+
+      console.log("✅ Bid saved:", savedBid);
+      io.emit("bidUpdate", { auctionId, bid: savedBid });
+    } catch (err) {
+      console.error("❌ Failed to save bid:", err);
+    }
   });
 });
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
