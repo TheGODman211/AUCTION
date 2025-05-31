@@ -21,11 +21,27 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: {
+    origin: 'https://auction-theta-two.vercel.app',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
 });
 
+
 // Middleware
-app.use(cors({ origin: "https://auction-theta-two.vercel.app", credentials: true }));
+const allowedOrigins = ['https://auction-theta-two.vercel.app'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 
+import { io } from "socket.io-client";
+
+const socket = io("https://auction-backend-wug0.onrender.com", {
+  withCredentials: true,
+  transports: ['websocket']
+});
+
+socket.on("connect", () => {
+  console.log("WebSocket connected");
+});
+
+
 const AdminDashboard = () => {
   const [auctions, setAuctions] = useState([]);
   const [newAuction, setNewAuction] = useState({
@@ -43,6 +55,24 @@ const AdminDashboard = () => {
       setStatus("❌ " + (err.response?.data || "Error creating auction"));
     }
   };
+
+  const handlePlaceBid = () => {
+  const bidData = {
+    amount: bidAmount,
+    bidder: userEmail,
+    timestamp: new Date().toISOString()
+  };
+
+  socket.emit("newBid", {
+    auctionId: currentAuctionId,
+    bid: bidData
+  });
+
+  console.log("Placing bid", bidAmount);
+  console.log("Sending to auction", currentAuctionId);
+
+};
+
 
   const handleDelete = async (id) => {
     try {
@@ -88,6 +118,9 @@ const AdminDashboard = () => {
         onChange={(e) => setNewAuction({ ...newAuction, expiresAt: e.target.value })}
         style={{ width: "100%", marginBottom: 12 }}
       />
+      <button onClick={handlePlaceBid}>Place Bid</button>
+
+
       <button onClick={handleCreate}>➕ Create Auction</button>
 
       <h3 style={{ marginTop: 40 }}>Existing Auctions</h3>
