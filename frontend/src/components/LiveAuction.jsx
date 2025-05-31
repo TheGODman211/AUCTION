@@ -41,8 +41,10 @@ const LiveAuction = ({ userEmail }) => {
 
     const bidData = {
       amount: amount,
-      bidder: userEmail.split("@")[0]
-      email: userEmail,
+      bidder:{
+        name: userEmail.split("@")[0],
+      email: userEmail
+    },
       timestamp: new Date().toISOString()
     };
 
