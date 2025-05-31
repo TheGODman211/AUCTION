@@ -166,6 +166,13 @@ app.get("/api/admin/status", async (req, res) => {
   res.json({ isAdmin: true });
 });
 
+// Get bid data
+app.get("/api/admin/auctions/:id/bids", requireAdmin, async (req, res) => {
+  const bids = await Bid.find({ auctionId: req.params.id }).sort({ timestamp: -1 });
+  res.send(bids);
+});
+
+
 // WebSocket for bidding
 io.on("connection", (socket) => {
   console.log("User connected");

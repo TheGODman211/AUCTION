@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { socket } from "../socket";
 import axios from "axios";
+import { io } from "socket.io-client";
+
+// Initialize socket connection
+const socket = io("https://auction-backend-wug0.onrender.com", {
+  withCredentials: true,
+  transports: ["websocket"]
+});
+
+socket.on("connect", () => {
+  console.log("WebSocket connected");
+});
 
 const LiveAuction = ({ userEmail }) => {
   const [auctions, setAuctions] = useState([]);
@@ -8,25 +18,40 @@ const LiveAuction = ({ userEmail }) => {
   const [amounts, setAmounts] = useState({});
 
   useEffect(() => {
-    axios.get("https://auction-backend-wug0.onrender.com/api/auctions").then((res) => {
-      setAuctions(res.data);
-    });
+    axios
+      .get("https://auction-backend-wug0.onrender.com/api/auctions")
+      .then((res) => {
+        setAuctions(res.data);
+      });
 
     socket.on("bidUpdate", ({ auctionId, bid }) => {
       setBids((prev) => ({ ...prev, [auctionId]: bid.amount }));
     });
 
-    return () => socket.off("bidUpdate");
+    return () => {
+      socket.off("bidUpdate");
+    };
   }, []);
 
   const placeBid = (auctionId) => {
     const amount = Number(amounts[auctionId]);
-    if (isNaN(amount) || amount <= 0) return alert("Enter a valid amount");
+    if (isNaN(amount) || amount <= 0) {
+      return alert("Enter a valid amount");
+    }
+
+    const bidData = {
+      amount: amount,
+      bidder: userEmail.split("@")[0]
+      email: userEmail,
+      timestamp: new Date().toISOString()
+    };
 
     socket.emit("newBid", {
       auctionId,
-      bid: { name: userEmail.split("@")[0], email: userEmail, amount },
+      bid: bidData
     });
+
+    console.log("Placing bid:", bidData);
   };
 
   return (
@@ -37,11 +62,15 @@ const LiveAuction = ({ userEmail }) => {
           <h3>{a.title}</h3>
           <p>{a.description}</p>
           <img src={a.image} alt={a.title} style={{ width: 200 }} />
-          <p>Starting Bid: ${a.startingBid}</p>
-          <p>Highest Bid: ${bids[a._id] || "No bids yet"}</p>
+          <p>Starting Bid: GHS {a.startingBid}</p>
+          <p>Highest Bid: GHS {bids[a._id] || "No bids yet"}</p>
           <input
             placeholder="Enter bid"
-            onChange={(e) => setAmounts({ ...amounts, [a._id]: e.target.value })}
+            type="number"
+            value={amounts[a._id] || ""}
+            onChange={(e) =>
+              setAmounts({ ...amounts, [a._id]: e.target.value })
+            }
           />
           <button onClick={() => placeBid(a._id)}>Place Bid</button>
         </div>
