@@ -154,6 +154,17 @@ app.get("/api/auctions", requireAdmin, async (req, res) => {
   res.send(auctions);
 });
 
+// DELETE an auction
+app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
+  try {
+    const result = await Auction.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).send("Auction not found");
+    res.send({ message: "Auction deleted" });
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
+});
+
 
 // Check admin login status
 app.get("/api/admin/status", async (req, res) => {

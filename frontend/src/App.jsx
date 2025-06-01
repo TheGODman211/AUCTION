@@ -26,6 +26,13 @@ const App = () => {
   if (checkingStatus) return <div>Loading...</div>;
 
   return (
+      <div style={{
+    backgroundImage: 'url("/bg.png")',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    minHeight: '100vh'
+  }}>
     <Router>
       <Routes>
         <Route
@@ -51,6 +58,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
+           </div>
   );
 };
 
