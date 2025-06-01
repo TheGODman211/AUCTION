@@ -474,8 +474,9 @@ const AdminDashboard = () => {
                     ) : (
                       bidHistory[a._id].map((bid, idx) => (
                         <li key={idx}>
-                          🧑 {bid.bidder} - 💰 ${bid.amount} - 🕒 {new Date(bid.timestamp).toLocaleString()}
+  🧑                       {bid.bidder.name} ({bid.bidder.email}) - 💰 ${bid.amount} - 🕒 {new Date(bid.timestamp).toLocaleString()}
                         </li>
+
                       ))
                     )}
                   </ul>
