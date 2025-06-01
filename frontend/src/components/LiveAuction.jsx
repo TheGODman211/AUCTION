@@ -174,7 +174,7 @@ const LiveAuction = ({ userEmail }) => {
           <p>
             Highest Bid:{" "}
             {bids[a._id]
-              ? `GHS ${formatAmount(bids[a._id].amount)} by ${bids[a._id].bidder.name} at ${new Date(bids[a._id].timestamp).toLocaleString()}`
+              ? `GHS ${formatAmount(bids[a._id].amount)}  at ${new Date(bids[a._id].timestamp).toLocaleString()}`
               : "No bids yet"}
           </p>
           <input

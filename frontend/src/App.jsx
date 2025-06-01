@@ -26,13 +26,13 @@ const App = () => {
   if (checkingStatus) return <div>Loading...</div>;
 
   return (
-      <div style={{
-    backgroundImage: 'url("/bg.png")',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    minHeight: '100vh'
-  }}>
+  //     <div style={{
+  //   backgroundImage: 'url("/bg.png")',
+  //   backgroundSize: 'cover',
+  //   backgroundRepeat: 'no-repeat',
+  //   backgroundPosition: 'center',
+  //   minHeight: '100vh'
+  // }}>
     <Router>
       <Routes>
         <Route
@@ -51,6 +51,8 @@ const App = () => {
             isAdmin ? <Navigate to="/admin" /> : <AdminLogin onLogin={() => setIsAdmin(true)} />
           }
         />
+          <Route path="/admin-register" element={<RegisterAdmin />} />
+
         <Route
           path="/admin"
           element={isAdmin ? <AdminDashboard /> : <Navigate to="/admin-login" />}
@@ -58,7 +60,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-           </div>
+           // </div>
   );
 };
 
