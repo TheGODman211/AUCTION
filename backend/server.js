@@ -28,6 +28,32 @@ const io = socketIo(server, {
   }
 });
 
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/images/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    if (isValid) return cb(null, true);
+    cb(new Error("Only image files are allowed"));
+  }
+});
+
+
+app.use("/images", express.static("uploads/images"));
 
 // Middleware
 const allowedOrigins = ['https://auction-theta-two.vercel.app', 'http://localhost:3000'];
@@ -154,26 +180,52 @@ app.post("/api/admin/logout", (req, res) => {
 });
 
 // Auction Routes
-app.post("/api/auctions", requireAdmin, async (req, res) => {
-  const auction = await Auction.create(req.body);
-  res.send(auction);
+app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res) => {
+  try {
+    const auction = await Auction.create({
+      title: req.body.title,
+      description: req.body.description,
+      startingBid: req.body.startingBid,
+      expiresAt: req.body.expiresAt,
+      image: req.file ? `/images/${req.file.filename}` : null
+    });
+    res.send(auction);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to create auction");
+  }
 });
 
-app.get("/api/auctions", requireAdmin, async (req, res) => {
+
+app.get("/api/auctions", async (req, res) => {
   const auctions = await Auction.find({});
   res.send(auctions);
 });
 
 // DELETE an auction
+const fs = require("fs");
+const path = require("path");
+
 app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
   try {
     const result = await Auction.findByIdAndDelete(req.params.id);
     if (!result) return res.status(404).send("Auction not found");
-    res.send({ message: "Auction deleted" });
+
+    // Delete image file from disk if it exists
+    if (result.image) {
+      const imagePath = path.join(__dirname, "uploads/images", result.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    res.send({ message: "Auction and image deleted" });
   } catch (err) {
+    console.error("❌ Failed to delete auction or image:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 // Check admin login status
