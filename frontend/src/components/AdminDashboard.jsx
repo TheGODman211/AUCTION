@@ -383,7 +383,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const res = await axios.get(`https://auction-backend-wug0.onrender.com/api/auctions/${auctionId}/bids`, {
+      const res = await axios.get(`https://auction-backend-wug0.onrender.com/api/admin/auctions/${auctionId}/bids`, {
         withCredentials: true
       });
       setVisibleBids(prev => ({ ...prev, [auctionId]: true }));
@@ -469,7 +469,7 @@ const AdminDashboard = () => {
                 <div style={slideStyle(isVisible)}>
                   <h4>📜 Bid History</h4>
                   <ul style={{ listStyle: "none", padding: 0 }}>
-                    {bidHistory[a._id]?.length === 0 ? (
+                    {!bidHistory[a._id] || bidHistory[a._id].length === 0 ? (
                       <li>No bids yet</li>
                     ) : (
                       bidHistory[a._id].map((bid, idx) => (

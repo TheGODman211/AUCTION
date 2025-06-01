@@ -30,7 +30,7 @@ const io = socketIo(server, {
 
 
 // Middleware
-const allowedOrigins = ['https://auction-theta-two.vercel.app'];
+const allowedOrigins = ['https://auction-theta-two.vercel.app', 'http://localhost:3000'];
 
 app.use(cors({
   origin: function (origin, callback) {
