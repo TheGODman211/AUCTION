@@ -45,45 +45,50 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
 
+
   // const handleLogin = async (e) => {
   //   e.preventDefault();
   //   try {
-  //     await axios.post(
-  //       'https://auction-backend-wug0.onrender.com/api/admin/login',
-  //       { username, password },
-  //       { withCredentials: true }
-  //     );
-  //     setStatus("Login successful!");
-  //     window.location.href = "/admin";
+  //     await axios.post('https://auction-backend-wug0.onrender.com/api/admin/login', {
+  //       username, password
+  //     }, {
+  //       withCredentials: true
+  //     });
+  //
+  //     // Now confirm admin status again
+  //     const res = await axios.get("https://auction-backend-wug0.onrender.com/api/admin/status", {
+  //       withCredentials: true
+  //     });
+  //
+  //     if (res.data.isAdmin) {
+  //       onLogin(); // Update parent state
+  //       window.location.href = "/admin"; // Optional fallback redirect
+  //     } else {
+  //       setStatus("Login failed — Not authorized.");
+  //     }
+  //
   //   } catch (err) {
   //     setStatus("Login failed: " + (err.response?.data || "Server error"));
   //   }
   // };
+
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post('https://auction-backend-wug0.onrender.com/api/admin/login', {
-        username, password
-      }, {
-        withCredentials: true
-      });
+  e.preventDefault();
+  try {
+    const res = await axios.post("https://auction-backend-wug0.onrender.com/api/admin/login", {
+      username, password
+    });
 
-      // Now confirm admin status again
-      const res = await axios.get("https://auction-backend-wug0.onrender.com/api/admin/status", {
-        withCredentials: true
-      });
+    localStorage.setItem("adminToken", res.data.token);
+    setStatus("Login successful!");
+    onLogin();
+    window.location.href = "/admin";
 
-      if (res.data.isAdmin) {
-        onLogin(); // Update parent state
-        window.location.href = "/admin"; // Optional fallback redirect
-      } else {
-        setStatus("Login failed — Not authorized.");
-      }
+  } catch (err) {
+    setStatus("Login failed: " + (err.response?.data || "Server error"));
+  }
+};
 
-    } catch (err) {
-      setStatus("Login failed: " + (err.response?.data || "Server error"));
-    }
-  };
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", flexDirection: "column" }}>

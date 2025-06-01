@@ -81,8 +81,18 @@ function sendOtp(email, code) {
 }
 
 // Admin Middleware
+// const requireAdmin = async (req, res, next) => {
+//   const token = req.cookies.admin;
+//   if (!token) return res.status(401).send("Not logged in");
+//
+//   const admin = await Admin.findById(token);
+//   if (!admin) return res.status(403).send("Unauthorized");
+//
+//   req.admin = admin;
+//   next();
+// };
 const requireAdmin = async (req, res, next) => {
-  const token = req.cookies.admin;
+  const token = req.headers.authorization?.replace("Bearer ", "");
   if (!token) return res.status(401).send("Not logged in");
 
   const admin = await Admin.findById(token);
@@ -130,13 +140,13 @@ app.post("/api/admin/login", async (req, res) => {
   const match = await bcrypt.compare(password, admin.password);
   if (!match) return res.status(401).send("Wrong password");
 
-  res.cookie("admin", admin._id, {
-    httpOnly: true,
-    sameSite: "None",
-    secure: true,
+  // res.cookie("admin", admin._id, {
+  //   httpOnly: true,
+  //   sameSite: "None",
+  //   secure: true,
+  // });
+  res.json({ token: admin._id });
   });
-  res.send("Logged in");
-});
 
 app.post("/api/admin/logout", (req, res) => {
   res.clearCookie("admin");
@@ -167,8 +177,18 @@ app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
 
 
 // Check admin login status
+// app.get("/api/admin/status", async (req, res) => {
+//   const token = req.cookies.admin;
+//   if (!token) return res.json({ isAdmin: false });
+//
+//   const admin = await Admin.findById(token);
+//   if (!admin) return res.json({ isAdmin: false });
+//
+//   res.json({ isAdmin: true });
+// });
+
 app.get("/api/admin/status", async (req, res) => {
-  const token = req.cookies.admin;
+  const token = req.headers.authorization?.replace("Bearer ", "");
   if (!token) return res.json({ isAdmin: false });
 
   const admin = await Admin.findById(token);
@@ -176,6 +196,7 @@ app.get("/api/admin/status", async (req, res) => {
 
   res.json({ isAdmin: true });
 });
+
 
 // Get bid data
 app.get("/api/admin/auctions/:id/bids", requireAdmin, async (req, res) => {
