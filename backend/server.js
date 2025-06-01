@@ -204,7 +204,6 @@ app.get("/api/auctions", async (req, res) => {
 
 // DELETE an auction
 const fs = require("fs");
-const path = require("path");
 
 app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
   try {
