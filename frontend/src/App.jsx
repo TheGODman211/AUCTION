@@ -2,15 +2,11 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from 'axios';
 
-
 import EmailVerification from "./components/EmailVerification.jsx";
 import LiveAuction from "./components/LiveAuction.jsx";
 import AdminLogin from "./components/AdminLogin.jsx";
 import AdminDashboard from "./components/AdminDashboard.jsx";
-import RegisterAdmin from "./components/RegisterAdmin.jsx";
-
-// Inside <Routes>
-<Route path="/admin-register" element={<RegisterAdmin />} />
+import RegisterAdmin from "./components/RegisterAdmin.jsx"; // ✅ make sure the path and name match
 
 const App = () => {
   const [userEmail, setUserEmail] = useState(null);
@@ -30,13 +26,6 @@ const App = () => {
   if (checkingStatus) return <div>Loading...</div>;
 
   return (
-  //     <div style={{
-  //   backgroundImage: 'url("/bg.png")',
-  //   backgroundSize: 'cover',
-  //   backgroundRepeat: 'no-repeat',
-  //   backgroundPosition: 'center',
-  //   minHeight: '100vh'
-  // }}>
     <Router>
       <Routes>
         <Route
@@ -55,16 +44,17 @@ const App = () => {
             isAdmin ? <Navigate to="/admin" /> : <AdminLogin onLogin={() => setIsAdmin(true)} />
           }
         />
-          <Route path="/admin-register" element={<RegisterAdmin />} />
-
         <Route
           path="/admin"
           element={isAdmin ? <AdminDashboard /> : <Navigate to="/admin-login" />}
         />
+        <Route
+          path="/admin-register"
+          element={<RegisterAdmin />} // ✅ make sure this is inside <Routes>
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-           // </div>
   );
 };
 
