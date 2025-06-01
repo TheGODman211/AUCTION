@@ -76,7 +76,8 @@ const LiveAuction = ({ userEmail }) => {
       {auctions.map((a) => (
         <div key={a._id} style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}>
           <h3>{a.title}</h3>
-          <p>{a.description}</p>
+          <p>📝 {a.description}</p>
+          <p> 🕒 Expires: {new Date(a.expiresAt).toLocaleString()}</p>
           {a.image && (
             <img
               src={`https://auction-backend-wug0.onrender.com/images/${a.image}`}
@@ -84,11 +85,11 @@ const LiveAuction = ({ userEmail }) => {
               style={{ width: 200, marginBottom: 10 }}
             />
           )}
-          <p>Starting Bid: GHS {formatAmount(a.startingBid)}</p>
+          <p>💰 Starting Bid: GHS {formatAmount(a.startingBid)}</p>
           <p>
-            Highest Bid:{" "}
+            🏆 Highest Bid:{" "}
             {bids[a._id]
-              ? `GHS ${formatAmount(bids[a._id].amount)} by ${bids[a._id].bidder.name} at ${new Date(
+              ? `GHS ${formatAmount(bids[a._id].amount)}  at ${new Date(
                   bids[a._id].timestamp
                 ).toLocaleString()}`
               : "No bids yet"}

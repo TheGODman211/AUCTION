@@ -30,6 +30,13 @@ const io = socketIo(server, {
 
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const uploadDir = path.join(__dirname, "uploads/images");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -203,7 +210,7 @@ app.get("/api/auctions", async (req, res) => {
 });
 
 // DELETE an auction
-const fs = require("fs");
+// const fs = require("fs");
 
 app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
   try {
