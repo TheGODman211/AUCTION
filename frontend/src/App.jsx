@@ -7,6 +7,10 @@ import EmailVerification from "./components/EmailVerification.jsx";
 import LiveAuction from "./components/LiveAuction.jsx";
 import AdminLogin from "./components/AdminLogin.jsx";
 import AdminDashboard from "./components/AdminDashboard.jsx";
+import RegisterAdmin from "./components/RegisterAdmin.jsx";
+
+// Inside <Routes>
+<Route path="/admin-register" element={<RegisterAdmin />} />
 
 const App = () => {
   const [userEmail, setUserEmail] = useState(null);
