@@ -60,7 +60,7 @@ const upload = multer({
 });
 
 
-app.use("/images", express.static("uploads/images"));
+app.use("/uploads", express.static("uploads/images"));
 
 // Middleware
 const allowedOrigins = ['https://auction-theta-two.vercel.app', 'http://localhost:3000'];
@@ -194,7 +194,7 @@ app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res)
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      image: req.file ? `/images/${req.file.filename}` : null
+      assetUrl: req.file ? `/images/${req.file.filename}` : null
     });
     res.send(auction);
   } catch (err) {

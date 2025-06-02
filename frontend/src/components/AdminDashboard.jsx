@@ -384,8 +384,8 @@ const AdminDashboard = () => {
                     💰 Starting at: GHS {formatAmount(a.startingBid)}<br />
                     📝 {a.description}<br />
                     🕒 Expires: {new Date(a.expiresAt).toLocaleString()}<br />
-                    {a.image && (
-                      <img src={`https://auction-backend-wug0.onrender.com/uploads/${a.image}`} alt={a.title} style={{ width: 150, marginTop: 8 }} />
+                    {a.assetUrl && (
+                      <img src={`https://auction-backend-wug0.onrender.com${a.assetUrl}`} alt={a.title} style={{ width: 150, marginTop: 8 }} />
                     )}
                     {highest && (
                       <p>

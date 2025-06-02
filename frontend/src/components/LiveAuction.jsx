@@ -78,9 +78,9 @@ const LiveAuction = ({ userEmail }) => {
           <h3>{a.title}</h3>
           <p>📝 {a.description}</p>
           <p> 🕒 Expires: {new Date(a.expiresAt).toLocaleString()}</p>
-          {a.image && (
+          {a.assetUrl && (
             <img
-              src={`https://auction-backend-wug0.onrender.com/images/${a.image}`}
+              src={`https://auction-backend-wug0.onrender.com${a.assetUrl}`}
               alt={a.title}
               style={{ width: 200, marginBottom: 10 }}
             />
