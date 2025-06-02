@@ -194,7 +194,7 @@ app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res)
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      assetUrl: req.file ? `/images/${req.file.filename}` : null
+      assetUrl: req.file ? `/uploads/${req.file.filename}` : null
     });
     res.send(auction);
   } catch (err) {
