@@ -199,14 +199,15 @@ app.post("/api/admin/logout", (req, res) => {
 });
 
 // Auction Routes
-app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res) => {
+app.post("/api/auctions", requireAdmin, upload.array("images",5), async (req, res) => {
   try {
+    const imageUrls = req.files.map(file => file.path);
     const auction = await Auction.create({
       title: req.body.title,
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      assetUrl: req.file?.path || null
+      assetUrls: req.file?.path || null
     });
     res.send(auction);
   } catch (err) {
