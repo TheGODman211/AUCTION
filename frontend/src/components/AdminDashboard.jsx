@@ -12,7 +12,6 @@ const AdminDashboard = () => {
     description: "",
     startingBid: 0,
     expiresAt: "",
-    image: []
   });
   const [status, setStatus] = useState("");
   const [viewMode, setViewMode] = useState("view");
@@ -52,8 +51,8 @@ const AdminDashboard = () => {
   const handleCreate = async () => {
     try {
       const { title, description, startingBid, expiresAt, image } = newAuction;
-      if (!title || !startingBid || !expiresAt || !image) {
-        return setStatus("All fields including image are required.");
+      if (!title || !startingBid || !expiresAt || selectedFiles.length === 0) {
+        return setStatus("All fields including at least one image are required.");
       }
 
       const formData = new FormData();
@@ -76,7 +75,9 @@ const AdminDashboard = () => {
       });
 
       setStatus("✅ Auction created successfully!");
-      setNewAuction({ title: "", description: "", startingBid: 0, expiresAt: "", image: null });
+      setNewAuction({ title: "", description: "", startingBid: 0, expiresAt: "" });
+      setSelectedFiles([]);
+
       fetchAuctions();
     } catch (err) {
       setStatus("❌ " + (err.response?.data || "Error creating auction"));
@@ -160,12 +161,13 @@ const AdminDashboard = () => {
             style={{ width: "100%", marginBottom: 8 }}
           />
           <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setNewAuction({ ...newAuction, image: e.target.files[0] })}
-            style={{ marginBottom: 12 }}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
+              style={{ marginBottom: 12 }}
           />
+
           <button onClick={handleCreate}>Submit Auction</button>
         </>
       )}
@@ -191,8 +193,8 @@ const AdminDashboard = () => {
                     📝 {a.description}<br />
                     🕒 Expires: {new Date(a.expiresAt).toLocaleString()}<br />
                     {a.assetUrls && a.assetUrls.map((url, idx) => (
-  <img key={idx} src={url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
-))}
+                        <img key={idx} src={url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
+                      ))}
 
                     {highest && (
                       <p>
