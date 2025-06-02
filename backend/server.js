@@ -51,7 +51,7 @@ if (!fs.existsSync(uploadDir)) {
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "auction-images",
+    folder: "auctions",
     allowed_formats: ["jpg", "png", "jpeg"],
     public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`
   }
