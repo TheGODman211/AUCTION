@@ -28,6 +28,16 @@ const io = socketIo(server, {
   }
 });
 
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -38,15 +48,15 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/images/");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "auction-images",
+    allowed_formats: ["jpg", "png", "jpeg"],
+    public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`
   }
 });
+
 
 const upload = multer({
   storage,
@@ -194,7 +204,7 @@ app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res)
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      assetUrl: req.file ? `/uploads/${req.file.filename}` : null
+      assetUrl: req.file?.path
     });
     res.send(auction);
   } catch (err) {

@@ -80,7 +80,7 @@ const LiveAuction = ({ userEmail }) => {
           <p> 🕒 Expires: {new Date(a.expiresAt).toLocaleString()}</p>
           {a.assetUrl && (
             <img
-              src={`https://auction-backend-wug0.onrender.com${a.assetUrl}`}
+              src={a.assetUrl}
               alt={a.title}
               style={{ width: 200, marginBottom: 10 }}
             />
