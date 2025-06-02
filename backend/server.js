@@ -204,11 +204,11 @@ app.post("/api/auctions", requireAdmin, upload.single("image"), async (req, res)
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      assetUrl: req.file?.path
+      assetUrl: req.file?.path || null
     });
     res.send(auction);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Auction creation failed:", err.message, err.stack);
     res.status(500).send("Failed to create auction");
   }
 });
