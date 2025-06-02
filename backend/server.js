@@ -218,7 +218,7 @@ app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
     if (!result) return res.status(404).send("Auction not found");
 
     // Delete image file from disk if it exists
-    if (result.image) {
+    if (result.assetUrl) {
       const imagePath = path.join(__dirname, "uploads/images", result.image);
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
