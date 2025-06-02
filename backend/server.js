@@ -199,16 +199,20 @@ app.post("/api/admin/logout", (req, res) => {
 });
 
 // Auction Routes
-app.post("/api/auctions", requireAdmin, upload.array("images",5), async (req, res) => {
+app.post("/api/auctions", requireAdmin, upload.array("images", 5), async (req, res) => {
   try {
-    const imageUrls = req.files.map(file => file.path);
+    const imageInfos = req.files.map(file => ({
+        url: file.path,
+        public_id: file.filename
+    }));
+
     const auction = await Auction.create({
       title: req.body.title,
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
-      assetUrls: req.file?.path || null
-    });
+      assetUrls: imageInfos
+});
     res.send(auction);
   } catch (err) {
     console.error("❌ Auction creation failed:", err.message, err.stack);
@@ -227,23 +231,23 @@ app.get("/api/auctions", async (req, res) => {
 
 app.delete("/api/auctions/:id", requireAdmin, async (req, res) => {
   try {
-    const result = await Auction.findByIdAndDelete(req.params.id);
-    if (!result) return res.status(404).send("Auction not found");
+    const auction = await Auction.findById(req.params.id);
+    if (!auction) return res.status(404).send("Auction not found");
 
-    // Delete image file from disk if it exists
-    if (result.assetUrl) {
-      const imagePath = path.join(__dirname, "uploads/images", result.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    }
+    // Delete from Cloudinary
+    const deletions = auction.assetUrls.map(img =>
+      cloudinary.uploader.destroy(img.public_id)
+    );
+    await Promise.all(deletions);
 
-    res.send({ message: "Auction and image deleted" });
+    await Auction.findByIdAndDelete(req.params.id);
+    res.send({ message: "Auction and images deleted from Cloudinary" });
   } catch (err) {
-    console.error("❌ Failed to delete auction or image:", err);
+    console.error("❌ Failed to delete auction or Cloudinary images:", err);
     res.status(500).send("Server error");
   }
 });
+
 
 
 

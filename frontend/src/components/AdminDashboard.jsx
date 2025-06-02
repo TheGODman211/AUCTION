@@ -50,7 +50,7 @@ const AdminDashboard = () => {
 
   const handleCreate = async () => {
     try {
-      const { title, description, startingBid, expiresAt, image } = newAuction;
+      const { title, description, startingBid, expiresAt} = newAuction;
       if (!title || !startingBid || !expiresAt || selectedFiles.length === 0) {
         return setStatus("All fields including at least one image are required.");
       }
@@ -192,9 +192,10 @@ const AdminDashboard = () => {
                     💰 Starting at: GHS {formatAmount(a.startingBid)}<br />
                     📝 {a.description}<br />
                     🕒 Expires: {new Date(a.expiresAt).toLocaleString()}<br />
-                    {a.assetUrls && a.assetUrls.map((url, idx) => (
-                        <img key={idx} src={url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
-                      ))}
+                    {a.assetUrls && a.assetUrls.map((img, idx) => (
+                      <img key={idx} src={img.url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
+                    ))}
+
 
                     {highest && (
                       <p>

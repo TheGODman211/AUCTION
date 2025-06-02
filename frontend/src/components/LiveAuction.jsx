@@ -78,9 +78,10 @@ const LiveAuction = ({ userEmail }) => {
           <h3>{a.title}</h3>
           <p>📝 {a.description}</p>
           <p> 🕒 Expires: {new Date(a.expiresAt).toLocaleString()}</p>
-          {a.assetUrls && a.assetUrls.map((url, idx) => (
-  <img key={idx} src={url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
-))}
+          {a.assetUrls && a.assetUrls.map((img, idx) => (
+            <img key={idx} src={img.url} alt={a.title} style={{ width: 150, margin: "5px 5px 10px 0" }} />
+          ))}
+
 
           <p>💰 Starting Bid: GHS {formatAmount(a.startingBid)}</p>
           <p>
