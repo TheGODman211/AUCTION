@@ -106,6 +106,19 @@ mongoose
         })
         .catch(console.error);
     }, 5 * 60 * 1000); // every 5 minutes
+
+    setInterval(async () => {
+    const now = new Date();
+    const result = await Auction.updateMany(
+      { expiresAt: { $lt: now }, status: "open" },
+      { $set: { status: "closed" } }
+    );
+
+    if (result.modifiedCount > 0) {
+      console.log(`🔒 ${result.modifiedCount} auctions closed due to expiration.`);
+          }
+}, 60 * 1000); // Runs every 1 minute
+
   })
   .catch((err) => console.error(err));
 
@@ -211,6 +224,7 @@ app.post("/api/auctions", requireAdmin, upload.array("images", 5), async (req, r
       description: req.body.description,
       startingBid: req.body.startingBid,
       expiresAt: req.body.expiresAt,
+      status: new Date(req.body.expiresAt) > new Date() ? "open" : "closed",
       assetUrls: imageInfos
 });
     res.send(auction);
@@ -287,6 +301,18 @@ io.on("connection", (socket) => {
 
   socket.on("newBid", async ({ auctionId, bid }) => {
     try {
+      const auction = await Auction.findById(auctionId);
+
+      if (!auction) {
+        socket.emit("bidRejected", { auctionId, reason: "Auction not found" });
+        return;
+      }
+
+      if (new Date() > new Date(auction.expiresAt) || auction.status === "closed") {
+        socket.emit("bidRejected", { auctionId, reason: "Auction expired or closed" });
+        return;
+      }
+
       const savedBid = await Bid.create({
         auctionId,
         ...bid
@@ -294,8 +320,10 @@ io.on("connection", (socket) => {
 
       console.log("✅ Bid saved:", savedBid);
       io.emit("bidUpdate", { auctionId, bid: savedBid });
+
     } catch (err) {
       console.error("❌ Failed to save bid:", err);
+      socket.emit("bidRejected", { auctionId, reason: "Internal server error" });
     }
   });
 });

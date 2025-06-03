@@ -29,8 +29,14 @@ const LiveAuction = ({ userEmail }) => {
       setBids((prev) => ({ ...prev, [auctionId]: bid }));
     });
 
+     // handle rejected bids
+    socket.on("bidRejected", ({ auctionId, reason }) => {
+      setStatus(`❌ Bid rejected: ${reason}`);
+    });
+
     return () => {
       socket.off("bidUpdate");
+      socket.off("bidRejected");
     };
   }, []);
 
@@ -92,13 +98,19 @@ const LiveAuction = ({ userEmail }) => {
                 ).toLocaleString()}`
               : "No bids yet"}
           </p>
-          <input
-            placeholder="Enter bid"
-            type="number"
-            value={amounts[a._id] || ""}
-            onChange={(e) => setAmounts({ ...amounts, [a._id]: e.target.value })}
-          />
-          <button onClick={() => placeBid(a._id)}>Place Bid</button>
+            {new Date(a.expiresAt) > new Date() ? (
+  <>
+    <input
+      placeholder="Enter bid"
+      type="number"
+      value={amounts[a._id] || ""}
+      onChange={(e) => setAmounts({ ...amounts, [a._id]: e.target.value })}
+    />
+    <button onClick={() => placeBid(a._id)}>Place Bid</button>
+  </>
+) : (
+  <p style={{ color: "gray" }}>❌ Bidding closed</p>
+)}
         </div>
       ))}
     </div>
