@@ -62,9 +62,10 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;
+
     const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     if (isValid) return cb(null, true);
     cb(new Error("Only image files are allowed"));
