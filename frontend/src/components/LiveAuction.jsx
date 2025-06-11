@@ -20,10 +20,18 @@ const LiveAuction = ({ userEmail }) => {
 
   useEffect(() => {
     axios
-      .get("https://auction-backend-wug0.onrender.com/api/auctions")
-      .then((res) => {
-        setAuctions(res.data);
-      });
+  .get("https://auction-backend-wug0.onrender.com/api/auctions")
+  .then((res) => {
+    const bidsMap = {};
+    res.data.forEach(a => {
+      if (a.highestBid) {
+        bidsMap[a._id] = a.highestBid;
+      }
+    });
+    setAuctions(res.data);
+    setBids(bidsMap); // 🧠 Store highest bids initially
+  });
+
 
     socket.on("bidUpdate", ({ auctionId, bid }) => {
       setBids((prev) => ({ ...prev, [auctionId]: bid }));

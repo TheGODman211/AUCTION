@@ -238,7 +238,14 @@ app.post("/api/auctions", requireAdmin, upload.array("images", 5), async (req, r
 
 app.get("/api/auctions", async (req, res) => {
   const auctions = await Auction.find({});
-  res.send(auctions);
+const auctionsWithHighest = await Promise.all(
+  auctions.map(async (a) => {
+    const highestBid = await Bid.findOne({ auctionId: a._id }).sort({ amount: -1 });
+    return { ...a.toObject(), highestBid };
+  })
+);
+res.send(auctionsWithHighest);
+
 });
 
 // DELETE an auction
