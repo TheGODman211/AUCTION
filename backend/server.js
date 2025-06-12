@@ -142,7 +142,7 @@ mongoose
 
     // Only for "NISSAN QASHQAI"
     if (
-      auction.title.toLowerCase().includes("new") &&
+      auction.title.toLowerCase().includes("nissan qashqai") &&
       timeLeft <= 4000 &&
       !auction.autoFinalBidDone
     ) {
