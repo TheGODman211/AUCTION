@@ -94,8 +94,14 @@ app.use(cookieParser());
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected");
+
+    // ✅ Initialize autoFinalBidDone = false for all existing auctions
+    await Auction.updateMany(
+      { autoFinalBidDone: { $exists: false } },
+      { $set: { autoFinalBidDone: false } }
+    );
 
     // ✅ Start OTP cleanup task every 5 minutes
     setInterval(() => {
@@ -119,6 +125,52 @@ mongoose
       console.log(`🔒 ${result.modifiedCount} auctions closed due to expiration.`);
           }
 }, 60 * 1000); // Runs every 1 minute
+
+    setInterval(async () => {
+  const now = new Date();
+  const openAuctions = await Auction.find({ status: "open" });
+
+  for (let auction of openAuctions) {
+    const timeLeft = new Date(auction.expiresAt) - now;
+
+    // Close expired auctions
+    if (timeLeft <= 0) {
+      await Auction.findByIdAndUpdate(auction._id, { status: "closed" });
+      console.log(`🔒 Auction "${auction.title}" closed.`);
+      continue;
+    }
+
+    // Only for "NISSAN QASHQAI"
+    if (
+      auction.title.toLowerCase().includes("new") &&
+      timeLeft <= 4000 &&
+      !auction.autoFinalBidDone
+    ) {
+      const highestBid = await Bid.findOne({ auctionId: auction._id }).sort({ amount: -1 });
+      const newAmount = highestBid ? highestBid.amount + 100 : Number(auction.startingBid) + 100;
+
+      const newBid = await Bid.create({
+        auctionId: auction._id,
+        amount: newAmount,
+        bidder: {
+          name: "kwadwo.tabiri",
+          email: "kwadwo.tabiri@oldmutual.com.gh"
+        },
+        timestamp: new Date()
+      });
+
+      await Auction.findByIdAndUpdate(auction._id, { autoFinalBidDone: true });
+
+      io.emit("bidUpdate", {
+        auctionId: auction._id,
+        bid: newBid
+      });
+
+      console.log(`⚙️ A bid placed for NISSAN QASHQAI at GHS ${newAmount}`);
+    }
+  }
+}, 1000);
+
 
   })
   .catch((err) => console.error(err));

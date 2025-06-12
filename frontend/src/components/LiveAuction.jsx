@@ -58,15 +58,22 @@ const LiveAuction = ({ userEmail }) => {
   const formatAmount = (amount) =>
     Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const placeBid = (auctionId) => {
-    const amount = Number(amounts[auctionId]);
+  const placeBid = (auction) => {
+    const amount = Number(amounts[auction._id]);
+    const timeLeft = new Date(auction.expiresAt) - new Date();
+
+    if (timeLeft <= 5000) {
+      setStatus("");
+      return;
+    }
+
     if (isNaN(amount) || amount <= 0) {
       setStatus("❌ Enter a valid amount");
       return;
     }
 
     const bidData = {
-      auctionId,
+      auction.id,
       amount: amount,
       bidder: {
         name: userEmail.split("@")[0],
@@ -114,7 +121,7 @@ const LiveAuction = ({ userEmail }) => {
       value={amounts[a._id] || ""}
       onChange={(e) => setAmounts({ ...amounts, [a._id]: e.target.value })}
     />
-    <button onClick={() => placeBid(a._id)}>Place Bid</button>
+    <button onClick={() => placeBid(a)}>Place Bid</button>
   </>
 ) : (
   <p style={{ color: "gray" }}>❌ Bidding closed</p>

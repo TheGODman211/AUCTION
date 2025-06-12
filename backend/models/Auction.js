@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const auctionSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
+  autoFinalBidDone: { type: Boolean, default: false },
   assetUrls: [
   {url: String,
     public_id: String
