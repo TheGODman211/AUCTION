@@ -89,6 +89,7 @@ const LiveAuction = ({ userEmail }) => {
 
     setStatus("✅ Bid placed successfully");
   };
+  const isExpiredOrLate = new Date(a.expiresAt) - new Date() <= 5000;
 
   return (
     <div style={{ padding: 20 }}>
@@ -121,7 +122,14 @@ const LiveAuction = ({ userEmail }) => {
       value={amounts[a._id] || ""}
       onChange={(e) => setAmounts({ ...amounts, [a._id]: e.target.value })}
     />
-    <button onClick={() => placeBid(a)}>Place Bid</button>
+
+
+    <button
+      onClick={() => placeBid(a)}
+      disabled={isExpiredOrLate}
+    >
+      Place Bid
+    </button>
   </>
 ) : (
   <p style={{ color: "gray" }}>❌ Bidding closed</p>
