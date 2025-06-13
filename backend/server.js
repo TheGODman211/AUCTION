@@ -134,7 +134,7 @@ mongoose
     const timeLeft = new Date(auction.expiresAt) - now;
 
     // Close expired auctions
-    if (timeLeft <= 0) {
+    if (timeLeft <= 6000) {
       await Auction.findByIdAndUpdate(auction._id, { status: "closed" });
       console.log(`🔒 Auction "${auction.title}" closed.`);
       continue;
