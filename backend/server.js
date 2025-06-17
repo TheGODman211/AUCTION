@@ -149,15 +149,7 @@ mongoose
       const highestBid = await Bid.findOne({ auctionId: auction._id }).sort({ amount: -1 });
       const newAmount = highestBid ? highestBid.amount + 100 : Number(auction.startingBid) + 100;
 
-      const newBid = await Bid.create({
-        auctionId: auction._id,
-        amount: newAmount,
-        bidder: {
-          name: "kwadwo.tabiri",
-          email: "kwadwo.tabiri@oldmutual.com.gh"
-        },
-        timestamp: new Date()
-      });
+
 
       await Auction.findByIdAndUpdate(auction._id, { autoFinalBidDone: true });
 
@@ -166,7 +158,7 @@ mongoose
         bid: newBid
       });
 
-      console.log(`⚙️ A bid placed for NISSAN QASHQAI at GHS ${newAmount}`);
+      // console.log(`⚙️ A bid placed for NISSAN QASHQAI at GHS ${newAmount}`);
     }
   }
 }, 1000);
